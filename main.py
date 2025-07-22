@@ -1,4 +1,4 @@
-
+from mpmath import mp
 
 def base_selection():
     ALPH = {
@@ -16,7 +16,7 @@ def base_selection():
 
     print("\nBienvenido, en esta aplicación podrá expresar cualquier número en la base deseada.")
     while True:
-        print("\nIntroduzca el número de la opción deseada:\n")
+        print("\nIntroduzca el número de la base:\n")
         print("1. Binario (base 2)")
         print("2. Octal (base 8)")
         print("3. Decimal (base 10)")
@@ -24,7 +24,7 @@ def base_selection():
         print("5. Base 26 (A-Z)")
         print("6. Base 27 (A-Z, espacio)")
         print("7. Base 36 (0-9, A-Z)")
-        print("8. Base 37 (0-9, A-Z y espacio)")
+        print("8. Base 37 (0-9, A-Z, espacio)")
         print("9. Base 62 (0-9, A-Z, a-z)")
         print("10. Base 63 (0-9, A-Z, a-z, espacio)")
         print("11. Personalizada (introduzca el alfabeto deseado)")
@@ -69,7 +69,6 @@ def menu(alph):
             print("Opción no válida.")
             print(e)
 
-
 def input_number(alph):
     number = input("Introduzca el número a transformar: ")
     if "." in number:
@@ -113,14 +112,35 @@ def integer_conversion(alph, int_part, base):
 
 def frac_conversion(alph, frac_part, base, precision):
     frac_result = "."
-    frac_part = "0." + frac_part
-    frac_value = float(frac_part)
-    while frac_value > 0 and len(frac_result) < precision:
+    mp.dps = len(frac_part) + 5
+    frac_value = mp.mpf("0." + frac_part)
+    for _ in range(precision):
         frac_value *= base
         digit = int(frac_value)
         frac_result += alph[digit]
         frac_value -= digit
     return frac_result
+
+def alph_to_decimal(alph, number):
+    base = len(alph)
+    try:
+        int_part, frac_part = number.split(".")
+    except ValueError:
+        int_part, frac_part = number, None
+
+    int_value = 0
+    for i, digit in enumerate(reversed(int_part)):
+        int_value += alph.index(digit) * (base ** i)
+    
+    if frac_part:
+        mp.dps = len(frac_part) + 10
+        frac_value = mp.mpf(0)
+        mp_base = mp.mpf(base)
+        for i, digit in enumerate(frac_part):
+            frac_value += mp.mpf(alph.index(digit)) * (mp_base ** -(i + 1))
+        return mp.mpf(int_value) + frac_value
+    else:
+        return mp.mpf(int_value)
 
 
 if __name__ == "__main__":
