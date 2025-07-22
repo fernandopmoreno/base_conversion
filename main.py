@@ -1,3 +1,5 @@
+from math import floor
+import sys
 from mpmath import mp
 
 def base_selection():
@@ -82,10 +84,10 @@ def input_number(alph):
 def irrational(number, alph):
     with open(f"irrational_numbers/{number}.txt", "r") as f:
         decimal = f.read()
-    result = decimal_to_alph(alph, decimal, precision=len(decimal.split(".")[1]) if "." in decimal else 10)
+    result = decimal_to_alph(alph, decimal, precision=len(decimal.split(".")[1]) if "." in decimal else None)
     print(result)
 
-def decimal_to_alph(alph, decimal, precision=10):
+def decimal_to_alph(alph, decimal, precision=None):
     base = len(alph)
     try:
         int_part, frac_part = decimal.split(".")
@@ -108,17 +110,19 @@ def integer_conversion(alph, int_part, base):
         int_result += alph[remainder]
         int_part //= base
     int_result += alph[int_part]
-    return int_result[::-1]
+    return int_result[::-1]  
 
 def frac_conversion(alph, frac_part, base, precision):
     frac_result = "."
-    mp.dps = len(frac_part) + 5
-    frac_value = mp.mpf("0." + frac_part)
+    mp.dps = precision + 2 if precision else 15
+    frac_value = float("0." + frac_part)
     for _ in range(precision):
         frac_value *= base
         digit = int(frac_value)
         frac_result += alph[digit]
         frac_value -= digit
+        if frac_value == 0:
+            break
     return frac_result
 
 def alph_to_decimal(alph, number):
