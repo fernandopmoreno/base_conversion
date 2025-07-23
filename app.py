@@ -78,8 +78,11 @@ class BaseConversionApp(App):
         if not self.input_in_alph(alph_input, number_input):
             self.query_one("#result_label", Label).update("Invalid input in the selected alphabet")
             return
-        number_output = base_convert(alph_input, alph_output, number_input)
-        self.query_one("#result_label", Label).update(number_output)
+        try:
+            number_output = base_convert(alph_input, alph_output, number_input)
+            self.query_one("#result_label", Label).update(number_output)
+        except Exception as e:
+            self.query_one("#result_label", Label).update(f"Error during conversion: {e}")
 
     @on(Button.Pressed, "#clear")
     def clear_input(self):
