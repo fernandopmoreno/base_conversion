@@ -1,6 +1,4 @@
-from math import floor
-import sys
-from mpmath import mp
+from conversion import decimal_to_alph
 
 def base_selection():
     ALPH = {
@@ -86,65 +84,6 @@ def irrational(number, alph):
         decimal = f.read()
     result = decimal_to_alph(alph, decimal, precision=len(decimal.split(".")[1]) if "." in decimal else None)
     print(result)
-
-def decimal_to_alph(alph, decimal, precision=None):
-    base = len(alph)
-    try:
-        int_part, frac_part = decimal.split(".")
-    except:
-        int_part, frac_part = decimal, None
-    int_part = int(int_part)
-
-    int_result = integer_conversion(alph, int_part, base)
-
-    if frac_part:
-        frac_result = frac_conversion(alph, frac_part, base, precision)
-        return int_result + frac_result
-    else:
-        return int_result
-
-def integer_conversion(alph, int_part, base):
-    int_result = ""
-    while int_part > base - 1:
-        remainder = int_part % base
-        int_result += alph[remainder]
-        int_part //= base
-    int_result += alph[int_part]
-    return int_result[::-1]  
-
-def frac_conversion(alph, frac_part, base, precision):
-    frac_result = "."
-    mp.dps = precision + 2 if precision else 15
-    frac_value = float("0." + frac_part)
-    for _ in range(precision):
-        frac_value *= base
-        digit = int(frac_value)
-        frac_result += alph[digit]
-        frac_value -= digit
-        if frac_value == 0:
-            break
-    return frac_result
-
-def alph_to_decimal(alph, number):
-    base = len(alph)
-    try:
-        int_part, frac_part = number.split(".")
-    except ValueError:
-        int_part, frac_part = number, None
-
-    int_value = 0
-    for i, digit in enumerate(reversed(int_part)):
-        int_value += alph.index(digit) * (base ** i)
-    
-    if frac_part:
-        mp.dps = len(frac_part) + 10
-        frac_value = mp.mpf(0)
-        mp_base = mp.mpf(base)
-        for i, digit in enumerate(frac_part):
-            frac_value += mp.mpf(alph.index(digit)) * (mp_base ** -(i + 1))
-        return mp.mpf(int_value) + frac_value
-    else:
-        return mp.mpf(int_value)
 
 
 if __name__ == "__main__":
