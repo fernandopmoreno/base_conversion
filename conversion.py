@@ -1,22 +1,29 @@
 from mpmath import mp
+from decimal import Decimal, getcontext
+from alphs import ALPH
+
+ALPH_DICT = {name: alph for name, alph in (item.split(":", 1) for item in ALPH)}
+
 
 def base_convert(alph_from, alph_to, number):
     base_from = len(alph_from)
     base_to = len(alph_to)
     int_part, frac_part = number_split(number)
-
-    int_value = integer_conversion_to_decimal(alph_from, int_part, base_from)
-    if frac_part:
-        frac_value = frac_conversion_to_decimal(alph_from, frac_part, base_from)
-        decimal_value = mp.mpf(int_value) + frac_value
+    
+    if alph_from != ALPH_DICT["Decimal (0-9)"]:
+        int_value = integer_conversion_to_decimal(alph_from, int_part, base_from)
+        if frac_part:
+            frac_value = frac_conversion_to_decimal(alph_from, frac_part, base_from)
+            decimal_value = mp.mpf(int_value) + frac_value
+        else:
+            decimal_value = mp.mpf(int_value)
     else:
-        decimal_value = mp.mpf(int_value)
-
-    if alph_to == "0123456789":
+        decimal_value = number
+    
+    if alph_to == ALPH_DICT["Decimal (0-9)"]:
         return str(decimal_value)
 
-    int_part = int(str(decimal_value).split(".")[0])
-    frac_part = str(decimal_value).split(".")[1] if "." in str(decimal_value) else None
+    int_part, frac_part = number_split(str(decimal_value))
 
     int_result = integer_conversion_from_decimal(alph_to, int_part, base_to)
     if frac_part:
@@ -33,6 +40,7 @@ def number_split(number):
 
 def integer_conversion_from_decimal(alph, int_part, base):
     int_result = ""
+    int_part = int(int_part)
     while int_part > base - 1:
         remainder = int_part % base
         int_result += alph[remainder]
@@ -42,8 +50,8 @@ def integer_conversion_from_decimal(alph, int_part, base):
 
 def frac_conversion_from_decimal(alph, frac_part, base, precision):
     frac_result = "."
-    mp.dps = precision + 2 if precision else 15
-    frac_value = float("0." + frac_part)
+    getcontext().prec = precision + 2 if precision else 15
+    frac_value = Decimal("0." + frac_part)
     for _ in range(precision):
         frac_value *= base
         digit = int(frac_value)

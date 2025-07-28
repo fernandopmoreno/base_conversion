@@ -2,22 +2,9 @@ from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 from textual.widgets import Button, Header, Input, Label, Select
-
 from conversion import base_convert
 
-ALPH = [
-    "Binary (0, 1):01",
-    "Octal (0-7):01234567",
-    "Decimal (0-9):0123456789",
-    "Hexadecimal (0-9, A-F):0123456789ABCDEF",
-    "Base 26 (A-Z):ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    "Base 27 (A-Z, space):ABCDEFGHIJKLMNOPQRSTUVWXYZ ",
-    "Base 36 (0-9, A-Z):0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    "Base 37 (0-9, A-Z, space):0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ ",
-    "Base 62 (0-9, A-Z, a-z):0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-    "Base 63 (0-9, A-Z, a-z, space):0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ",
-    "Custom:Custom Alphabet",
-]
+from alphs import ALPH
 
 class BaseConversionApp(App):
     """A simple base conversion application."""
@@ -94,11 +81,11 @@ class BaseConversionApp(App):
         self.exit()
 
     def get_number_input(self):
-        input = self.query_one("#number_input", Input).value
-        if not input:
+        input_widget = self.query_one("#number_input", Input)
+        if not input_widget.value:
             self.query_one("#result_label", Label).update("Please enter a number")
-            return
-        return input
+            return None
+        return input_widget.value
 
     def alph_selection(self, part):
         if self.query_one(f"#custom_alphabet_{part}", Input).display:
@@ -107,15 +94,11 @@ class BaseConversionApp(App):
             alph = self.query_one(f"#base_{part}", Select).value
         if not alph:
             self.query_one("#result_label", Label).update("Please select valid alphabets")
-            return
+            return None
         return alph
 
     def input_in_alph(self, alph, number):
         for char in number:
-            if char not in alph+".":
+            if char not in alph + ".":
                 return False
         return True
-
-if __name__ == "__main__":
-    app = BaseConversionApp()
-    app.run()
