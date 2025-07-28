@@ -74,3 +74,12 @@ def frac_conversion_to_decimal(alph, frac_part, base):
     for i, digit in enumerate(frac_part):
         frac_value += mp.mpf(alph.index(digit)) * (mp_base ** -(i + 1))
     return frac_value
+
+def irrational(number, alph):
+    with open(f"irrational_numbers/{number}.txt", "r") as f:
+        decimal = f.read()
+    print(f"Converting {number} in {alph} alphabet:")
+    result = base_convert("0123456789", alph, decimal)
+    with open("irrational_conversion_result.txt", "w") as f:
+        f.write(result)
+    return result
